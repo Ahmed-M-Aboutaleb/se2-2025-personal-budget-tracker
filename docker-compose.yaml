@@ -1,0 +1,88 @@
+version: "3.8"
+services:
+  postgres:
+    container_name: container-pg
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: users
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - budget-net
+
+  config:
+    container_name: config-service
+    build:
+      context: ./back-end/config-server
+      dockerfile: Dockerfile
+    ports:
+      - "8888:8888"
+    depends_on:
+      - postgres
+    networks:
+      - budget-net
+
+  eureka:
+    container_name: eureka-service
+    build:
+      context: ./back-end/discovery
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
+    depends_on:
+      - config
+    networks:
+      - budget-net
+
+  auth:
+    container_name: auth-service
+    build:
+      context: ./back-end/auth
+      dockerfile: Dockerfile
+    ports:
+      - "9090:9090"
+    depends_on:
+      - config
+      - eureka
+      - postgres
+    networks:
+      - budget-net
+  budget:
+    container_name: budget-service
+    build:
+      context: ./back-end/budget
+      dockerfile: Dockerfile
+    ports:
+      - "8090:8090"
+    depends_on:
+      - config
+      - eureka
+      - postgres
+      - auth
+    networks:
+      - budget-net
+  gateway:
+    container_name: gateway-service
+    build:
+      context: ./back-end/gateway
+      dockerfile: Dockerfile
+    ports:
+      - "8222:8222"
+    depends_on:
+      - config
+      - eureka
+      - auth
+      - budget
+    networks:
+      - budget-net
+volumes:
+  postgres-data:
+
+networks:
+  budget-net:
+    driver: bridge

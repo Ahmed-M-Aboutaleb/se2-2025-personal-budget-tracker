@@ -1,0 +1,54 @@
+server:
+  port: 8222
+eureka:
+  client:
+    register-with-eureka: true # Changed to true to register with Eureka
+    fetch-registry: true # Add this to fetch registry from Eureka
+    service-url:
+      defaultZone: http://eureka:8761/eureka/ # Add Eureka server URL
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          "[/**]":
+            allowedOrigins:
+              - "http://localhost:3000"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - Content-Type
+              - Authorization
+              - X-Requested-With
+            allowCredentials: true
+            maxAge: 3600
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: auth
+          uri: http://auth:9090
+          predicates:
+            - Path=/api/v1/auth/**
+        - id: users
+          uri: http://auth:9090
+          predicates:
+            - Path=/api/v1/users/**
+        - id: categories
+          uri: http://budget:8090
+          predicates:
+            - Path=/api/v1/categories/**
+        - id: accounts
+          uri: http://budget:8090
+          predicates:
+            - Path=/api/v1/accounts/**
+        - id: entries
+          uri: http://budget:8090
+          predicates:
+            - Path=/api/v1/entries/**

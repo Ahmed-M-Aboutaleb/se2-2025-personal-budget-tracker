@@ -1,0 +1,35 @@
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    service-url:
+      defaultZone: http://eureka:8761/eureka
+
+spring:
+  application:
+    name: auth
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://postgres:5432/users
+    username: username
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+server:
+  port: 9090
+
+jwt:
+  secret: sYvQ7F4BgKpXwN9zM5Rb3HeVcT2jJ8uD6L1PmAsZ0qWxE7G4nI # A longer, more secure key
+  expirationMs: 3600000
+
+# Add logging configuration
+logging:
+  level:
+    root: INFO
+    com.budget.auth: INFO
+    com.budget.auth.aspects: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
